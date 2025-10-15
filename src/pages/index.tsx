@@ -11,11 +11,7 @@ function App() {
       .catch((err) => console.error("요청 실패:", err));
   }, []);
 
-  return (
-    <div className="flex min-h-svh flex-col items-center justify-center">
-      <h1>MSW 테스트 중...</h1>
-    </div>
-  );
+  return <div>메인 페이지</div>;
 }
 
 export default App;

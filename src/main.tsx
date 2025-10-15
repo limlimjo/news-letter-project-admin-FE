@@ -9,6 +9,8 @@ import ContentsDetail from "./pages/contents/ContentsDetail";
 import ContentEdit from "./pages/contents/ContentEdit";
 import ContentsList from "./pages/contents/ContentsList";
 import SubscribersList from "./pages/subscribers/SubscribersList";
+import DashboardList from "./pages/dashboard/DashboardList";
+import URL from "./constants/url";
 
 // 개발 환경에서만 msw 시작
 if (process.env.NODE_ENV === "development") {
@@ -22,11 +24,12 @@ createRoot(document.getElementById("root")!).render(
       <Routes>
         <Route element={<RootLayout />}>
           <Route index element={<App />} />
-          <Route path="/contents/new" element={<ContentCreate />} />
-          <Route path="/contents/:id" element={<ContentsDetail />} />
-          <Route path="/contents/:id/edit" element={<ContentEdit />} />
-          <Route path="/contents" element={<ContentsList />} />
-          <Route path="/subscribers" element={<SubscribersList />} />
+          <Route path={URL.ADMIN_CONTENTS} element={<ContentsList />} />
+          <Route path={URL.ADMIN_CONTENTS_NEW} element={<ContentCreate />} />
+          <Route path={URL.ADMIN_CONTENTS_DETAIL} element={<ContentsDetail />} />
+          <Route path={URL.ADMIN_CONTENTS_EDIT} element={<ContentEdit />} />
+          <Route path={URL.ADMIN_SUBSCRIBERS} element={<SubscribersList />} />
+          <Route path={URL.ADMIN_DASHBOARD} element={<DashboardList />} />
         </Route>
       </Routes>
     </BrowserRouter>
