@@ -24,7 +24,7 @@ const ContentsList = () => {
   };
 
   return (
-    <div className="min-w-[55rem] bg-gray-100 mt-10 mb-4 ml-5 mr-5 rounded">
+    <div className="bg-gray-100 mt-10 mb-4 ml-5 mr-5 rounded">
       <div className="p-5 flex justify-between items-center">
         <h3 className="text-2xl font-semibold">콘텐츠 관리</h3>
         <Button

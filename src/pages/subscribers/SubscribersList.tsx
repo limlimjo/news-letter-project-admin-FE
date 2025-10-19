@@ -16,7 +16,7 @@ const SubscribersList = () => {
   ];
 
   return (
-    <div className="min-w-[55rem] bg-gray-100 mt-10 mb-4 ml-5 mr-5 rounded">
+    <div className="bg-gray-100 mt-10 mb-4 ml-5 mr-5 rounded">
       <div className="p-5">
         <h3 className="text-2xl font-semibold">구독자 관리</h3>
       </div>
