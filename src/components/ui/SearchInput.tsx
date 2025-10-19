@@ -31,7 +31,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
         placeholder={placeholder}
         disabled={disabled}
         style={style}
-        className={`bg-gray-200 rounded pl-10 pr-145 py-2 ${className}`}
+        className={`w-full bg-gray-200 rounded pl-10 py-2 ${className}`}
       />
     </div>
   );

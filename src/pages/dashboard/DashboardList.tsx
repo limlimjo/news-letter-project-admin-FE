@@ -58,7 +58,7 @@ const DashboardList = () => {
           </div>
         </CardBox>
       </div>
-      <div className="grid grid-cols-1 px-5">
+      <div className="grid grid-cols-1 px-5 pb-5">
         <CardBox className="py-[20px]">
           <div className="ml-7">
             <div className="text-gray-700 mb-7">SendGrid 연동 정보</div>

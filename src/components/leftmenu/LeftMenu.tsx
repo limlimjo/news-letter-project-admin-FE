@@ -5,7 +5,7 @@ const LeftMenu = () => {
   return (
     <aside
       id="sidebar"
-      className="bg-gray-200 w-64 text-gray-800 py-7 px-2 space-y-6 z-10 relative transition duration-200"
+      className="bg-gray-200 w-64 min-w-[16rem] text-gray-800 py-7 px-2 space-y-6 z-10 relative transition duration-200"
     >
       <div className="flex justify-between items-center px-4 mb-10">
         <h2 className="text-2xl font-medium">Newsletter Admin</h2>

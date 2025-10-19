@@ -28,7 +28,7 @@ const ComboBox: React.FC<ComboBoxProps> = ({
       onChange={(e) => onChange(e.target.value)}
       disabled={disabled}
       style={style}
-      className={`bg-gray-200 rounded-md px-10 py-2 text-sm ${className}`}
+      className={`bg-gray-200 rounded-md px-10 py-2 text-sm inline-block ${className}`}
     >
       {options.map((option) => (
         <option key={option.value} value={option.value}>

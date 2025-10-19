@@ -2,9 +2,13 @@ import Button from "@/components/ui/button";
 import ComboBox from "@/components/ui/ComboBox";
 import SearchInput from "@/components/ui/SearchInput";
 import Table from "@/components/ui/Table";
+import URL from "@/constants/url";
 import { useState } from "react";
+import { useNavigate } from "react-router";
 
 const ContentsList = () => {
+  const navigate = useNavigate();
+
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
 
@@ -15,15 +19,22 @@ const ContentsList = () => {
     { value: "draft", label: "임시 저장" },
   ];
 
+  const handleRegisterBtnClick = () => {
+    navigate(URL.ADMIN_CONTENTS_NEW);
+  };
+
   return (
-    <div className="bg-gray-100 mt-10 mb-4 ml-5 mr-5 rounded">
+    <div className="min-w-[55rem] bg-gray-100 mt-10 mb-4 ml-5 mr-5 rounded">
       <div className="p-5 flex justify-between items-center">
         <h3 className="text-2xl font-semibold">콘텐츠 관리</h3>
-        <Button className="bg-black text-white px-8 py-3 rounded">
+        <Button
+          onClick={handleRegisterBtnClick}
+          className="bg-black text-white px-8 py-3 rounded cursor-pointer hover:bg-gray-300 hover:text-black transition"
+        >
           <i className="fas fa-plus mr-3"></i>새 글 등록
         </Button>
       </div>
-      <div className="p-5 flex">
+      <div className="p-5 flex justify-between gap-5">
         <SearchInput value={search} onChange={setSearch} placeholder="글 제목 및 내용 검색" />
         <ComboBox value={filter} onChange={setFilter} options={options} />
       </div>
