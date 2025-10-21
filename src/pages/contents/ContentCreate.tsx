@@ -62,10 +62,6 @@ const ContentCreate = () => {
                     즉시 발행
                   </label>
                   <label>
-                    <input className="mr-2" type="radio" name="status" value="draft" />
-                    임시 저장 (Draft)
-                  </label>
-                  <label>
                     <input className="mr-2" type="radio" name="status" value="unpublished" />
                     발행 예약
                   </label>
@@ -73,11 +69,11 @@ const ContentCreate = () => {
               </div>
               <div className="mt-4">
                 <div className="mb-2">
-                  <p>예약 날짜</p>
+                  <p className="mb-2">예약 날짜</p>
                   <CommonInput type="date" value={reservationDate} onChange={setReservationDate} placeholder="" />
                 </div>
                 <div>
-                  <p>예약 시간</p>
+                  <p className="mb-2">예약 시간</p>
                   <CommonInput type="time" value={reservationTime} onChange={setReservationTime} placeholder="" />
                 </div>
               </div>
@@ -87,7 +83,7 @@ const ContentCreate = () => {
             <div>
               <p className="text-lg font-semibold">테스트 발송</p>
               <div className="mt-4">
-                <p>이메일 주소</p>
+                <p className="mb-2">이메일 주소</p>
                 <CommonInput className="mb-3" value={email} onChange={setEmail} placeholder="test@example.com" />
                 <Button className="w-full bg-white text-black border border-gray-300 px-4 py-3 rounded cursor-pointer hover:bg-black hover:text-white transition">
                   <i className="fa fa-paper-plane mr-3"></i>테스트 발송
