@@ -1,4 +1,4 @@
-import { NavLink } from "react-router";
+import { Link, NavLink } from "react-router";
 import URL from "../../constants/url";
 
 const LeftMenu = () => {
@@ -8,7 +8,9 @@ const LeftMenu = () => {
       className="bg-gray-200 w-64 min-w-[16rem] text-gray-800 py-7 px-2 space-y-6 z-10 relative transition duration-200"
     >
       <div className="flex justify-between items-center px-4 mb-10">
-        <h2 className="text-2xl font-medium">Newsletter Admin</h2>
+        <Link to="/" className="text-2xl font-medium">
+          Newsletter Admin
+        </Link>
       </div>
       <div className="px-4 mb-2">
         <span className="text-lg font-medium text-gray-600">메뉴</span>
