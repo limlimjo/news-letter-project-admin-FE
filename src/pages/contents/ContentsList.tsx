@@ -39,7 +39,15 @@ const ContentsList = () => {
         <ComboBox value={filter} onChange={setFilter} options={options} />
       </div>
       <div className="p-5">
-        <Table columns={["글 제목", "발행 상태", "발행 일시", "작업"]} data={[]} />
+        <Table
+          columns={[
+            { key: "title", label: "글 제목" },
+            { key: "status", label: "발행 상태" },
+            { key: "createdAt", label: "발행 일시" },
+            { key: "manage", label: "작업" },
+          ]}
+          data={[]}
+        />
       </div>
     </div>
   );
