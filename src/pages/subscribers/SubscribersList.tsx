@@ -116,7 +116,7 @@ const SubscribersList = () => {
             {
               key: "manage",
               label: "관리",
-              render: (value, row) => {
+              render: (_value, row) => {
                 const isSubscribed = row.status === "subscribed";
 
                 const handleUnsubscribe = async () => {
