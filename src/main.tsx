@@ -13,11 +13,15 @@ import DashboardList from "./pages/dashboard/DashboardList";
 import URL from "./constants/url";
 
 // msw 시작
-if (process.env.NODE_ENV === "development" || process.env.REACT_APP_USE_MOCK === "true") {
+async function initMocks() {
   const { worker } = await import("./mocks/browser");
   await worker.start({
     serviceWorker: { url: "/mockServiceWorker.js" },
   });
+}
+
+if (process.env.NODE_ENV === "development" || process.env.REACT_APP_USE_MOCK === "true") {
+  initMocks();
 }
 
 createRoot(document.getElementById("root")!).render(
