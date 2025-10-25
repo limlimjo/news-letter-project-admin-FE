@@ -20,7 +20,7 @@ async function initMocks() {
   });
 }
 
-if (process.env.NODE_ENV === "development" || process.env.REACT_APP_USE_MOCK === "true") {
+if (import.meta.env.MODE === "development" || import.meta.env.VITE_USE_MOCK === "true") {
   initMocks();
 }
 
