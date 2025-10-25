@@ -20,24 +20,28 @@ async function initMocks() {
   });
 }
 
-if (import.meta.env.MODE === "development" || import.meta.env.VITE_USE_MOCK === "true") {
-  initMocks();
+async function init() {
+  if (import.meta.env.MODE === "development" || import.meta.env.VITE_USE_MOCK === "true") {
+    await initMocks();
+  }
+
+  createRoot(document.getElementById("root")!).render(
+    <StrictMode>
+      <BrowserRouter>
+        <Routes>
+          <Route element={<RootLayout />}>
+            <Route index element={<App />} />
+            <Route path={URL.ADMIN_CONTENTS} element={<ContentsList />} />
+            <Route path={URL.ADMIN_CONTENTS_NEW} element={<ContentCreate />} />
+            <Route path={URL.ADMIN_CONTENTS_DETAIL} element={<ContentsDetail />} />
+            <Route path={URL.ADMIN_CONTENTS_EDIT} element={<ContentEdit />} />
+            <Route path={URL.ADMIN_SUBSCRIBERS} element={<SubscribersList />} />
+            <Route path={URL.ADMIN_DASHBOARD} element={<DashboardList />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </StrictMode>
+  );
 }
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route element={<RootLayout />}>
-          <Route index element={<App />} />
-          <Route path={URL.ADMIN_CONTENTS} element={<ContentsList />} />
-          <Route path={URL.ADMIN_CONTENTS_NEW} element={<ContentCreate />} />
-          <Route path={URL.ADMIN_CONTENTS_DETAIL} element={<ContentsDetail />} />
-          <Route path={URL.ADMIN_CONTENTS_EDIT} element={<ContentEdit />} />
-          <Route path={URL.ADMIN_SUBSCRIBERS} element={<SubscribersList />} />
-          <Route path={URL.ADMIN_DASHBOARD} element={<DashboardList />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
-  </StrictMode>
-);
+init();
