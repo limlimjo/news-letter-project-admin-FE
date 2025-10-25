@@ -12,10 +12,12 @@ import SubscribersList from "./pages/subscribers/SubscribersList";
 import DashboardList from "./pages/dashboard/DashboardList";
 import URL from "./constants/url";
 
-// 개발 환경에서만 msw 시작
-if (process.env.NODE_ENV === "development") {
+// msw 시작
+if (process.env.NODE_ENV === "development" || process.env.REACT_APP_USE_MOCK === "true") {
   const { worker } = await import("./mocks/browser");
-  await worker.start();
+  await worker.start({
+    serviceWorker: { url: "/mockServiceWorker.js" },
+  });
 }
 
 createRoot(document.getElementById("root")!).render(
