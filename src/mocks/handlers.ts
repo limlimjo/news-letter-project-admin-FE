@@ -6,9 +6,10 @@ export const handlers = [
   // 콘텐츠 목록 조회
   http.get("/api/contents", () => {
     return HttpResponse.json([
-      { id: 1, title: "첫 번째 콘텐츠", createdAt: "2025-10-07", status: "draft" },
-      { id: 2, title: "두 번째 콘텐츠", createdAt: "2025-10-08", status: "published" },
+      { id: 1, title: "첫 번째 콘텐츠", createdAt: "2025-10-07", status: "published" },
+      { id: 2, title: "두 번째 콘텐츠", createdAt: "2025-10-08", status: "unpublished" },
       { id: 3, title: "세 번째 콘텐츠", createdAt: "2025-10-09", status: "draft" },
+      { id: 4, title: "네 번째 콘텐츠", createdAt: "2025-10-10", status: "published" },
     ]);
   }),
 
