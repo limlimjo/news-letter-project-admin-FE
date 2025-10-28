@@ -1,4 +1,4 @@
-import Button from "@/components/ui/button";
+import Button from "@/components/ui/Button";
 import CardBox from "@/components/ui/CardBox";
 import CommonInput from "@/components/ui/CommonInput";
 import URL from "@/constants/url";

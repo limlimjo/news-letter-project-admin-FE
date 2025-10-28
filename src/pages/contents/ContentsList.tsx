@@ -1,4 +1,4 @@
-import Button from "@/components/ui/button";
+import Button from "@/components/ui/Button";
 import ComboBox from "@/components/ui/ComboBox";
 import SearchInput from "@/components/ui/SearchInput";
 import Table from "@/components/ui/Table";
