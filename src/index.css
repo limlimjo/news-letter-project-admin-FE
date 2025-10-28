@@ -1,8 +1,12 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@import "pretendard/dist/web/static/pretendard.css";
+
+/* 전체 페이지 Pretendard 적용 */
 html,
 body,
 #root {
   height: 100%;
+  font-family: "Pretendard", ui-sans-serif, system-ui;
 }
