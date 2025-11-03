@@ -8,11 +8,6 @@ interface TinyMceTestProps {
 const TinyMceEditor = ({ content, setContent }: TinyMceTestProps) => {
   const apikey = import.meta.env.VITE_EDITOR_API_KEY;
 
-  const handleSave = () => {
-    console.log("작성된 HTML:", content);
-    alert("콘솔에서 HTML 코드를 확인해보세요!");
-  };
-
   return (
     <div className="py-4">
       <Editor
