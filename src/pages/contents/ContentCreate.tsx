@@ -1,6 +1,8 @@
+import TinyMceEditor from "@/components/TinyMceEditor";
 import Button from "@/components/ui/Button";
 import CardBox from "@/components/ui/CardBox";
 import CommonInput from "@/components/ui/CommonInput";
+import "../../editorPreview.css";
 import URL from "@/constants/url";
 import { useState } from "react";
 import { useNavigate } from "react-router";
@@ -13,6 +15,7 @@ const ContentCreate = () => {
   const [reservationDate, setReservationDate] = useState("");
   const [reservationTime, setReservationTime] = useState("");
   const [email, setEmail] = useState("");
+  const [content, setContent] = useState("");
 
   const handleBackBtnClick = () => {
     navigate(URL.ADMIN_CONTENTS);
@@ -32,7 +35,7 @@ const ContentCreate = () => {
       <div className="grid grid-cols-[3fr_1fr] gap-6 p-5">
         <div>
           <CommonInput type="text" className="mb-4" value={title} onChange={setTitle} placeholder="제목을 입력하세요" />
-          <div className="flex w-full bg-gray-200 rounded-full p-1 mb-5">
+          <div className="flex w-full bg-gray-200 rounded-full p-1">
             <button
               onClick={() => setActiveTab("editor")}
               className={`flex-1 text-sm font-medium py-2 rounded-full transition
@@ -48,7 +51,15 @@ const ContentCreate = () => {
               실시간 미리보기
             </button>
           </div>
-          <div className="bg-fuchsia-300">에디터 추가 예정</div>
+          <div className="max-w-3xl mx-auto">
+            {activeTab === "editor" ? (
+              <TinyMceEditor content={content} setContent={setContent} />
+            ) : (
+              <div className="mt-4 bg-white rounded min-h-[400px] p-4">
+                <div className="editor-preview max-w-none" dangerouslySetInnerHTML={{ __html: content }} />
+              </div>
+            )}
+          </div>
         </div>
         <div className="flex flex-col gap-4">
           <CardBox className="px-5 py-5">
