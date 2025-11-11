@@ -25,7 +25,19 @@ const LeftMenu = () => {
               }`
             }
           >
-            <i className="fas fa-file-lines mr-4.5"></i>콘텐츠 관리
+            <i className="fas fa-file-lines mr-4.5"></i>웹 콘텐츠 관리
+          </NavLink>
+        </div>
+        <div className="flex flex-col">
+          <NavLink
+            to={URL.ADMIN_NEWSLETTERS}
+            className={({ isActive }) =>
+              `text-xl font-medium py-1.5 px-4 rounded transition-colors duration-200 ${
+                isActive ? "bg-gray-300" : "hover:bg-gray-300"
+              }`
+            }
+          >
+            <i className="fas fa-file-lines mr-4.5"></i>뉴스레터 관리
           </NavLink>
         </div>
         <div className="flex flex-col">

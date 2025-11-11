@@ -3,17 +3,17 @@ import { http, HttpResponse } from "msw";
 
 // 콘텐츠 등록/수정/삭제/조회, 구독자 목록 조회 모킹
 export const handlers = [
-  // 콘텐츠 목록 조회
+  // 웹 콘텐츠 목록 조회
   http.get("/api/contents", () => {
     return HttpResponse.json([
       { id: 1, title: "첫 번째 콘텐츠", createdAt: "2025-10-07", status: "published" },
-      { id: 2, title: "두 번째 콘텐츠", createdAt: "2025-10-08", status: "unpublished" },
+      { id: 2, title: "두 번째 콘텐츠", createdAt: "2025-10-08", status: "draft" },
       { id: 3, title: "세 번째 콘텐츠", createdAt: "2025-10-09", status: "draft" },
       { id: 4, title: "네 번째 콘텐츠", createdAt: "2025-10-10", status: "published" },
     ]);
   }),
 
-  // 콘텐츠 상세 조회
+  // 웹 콘텐츠 상세 조회
   http.get("/api/contents/:id", ({ params }) => {
     const { id } = params;
     return HttpResponse.json({
@@ -25,14 +25,14 @@ export const handlers = [
     });
   }),
 
-  // 콘텐츠 등록
+  // 웹 콘텐츠 등록
   http.post("/api/contents", async ({ request }) => {
     const newContent = await request.json();
     console.log("새 콘텐츠 등록됨: ", newContent);
     return HttpResponse.json({ message: "등록 성공", data: newContent }, { status: 201 });
   }),
 
-  // 콘텐츠 수정
+  // 웹 콘텐츠 수정
   http.put("/api/contents/:id", async ({ params, request }) => {
     const { id } = params;
     const updatedContent = await request.json();
@@ -40,11 +40,55 @@ export const handlers = [
     return HttpResponse.json({ message: "수정 성공", data: updatedContent });
   }),
 
-  // 콘텐츠 삭제
+  // 웹 콘텐츠 삭제
   http.delete("/api/contents/:id", ({ params }) => {
     const { id } = params;
     console.log(`${id} 번째 콘텐츠 삭제됨`);
     return HttpResponse.json({ message: `${id} 번째 콘텐츠 삭제됨` });
+  }),
+
+  // 뉴스레터 목록 조회
+  http.get("/api/newsletters", () => {
+    return HttpResponse.json([
+      { id: 1, title: "첫 번째 뉴스레터", createdAt: "2025-10-07", status: "published" },
+      { id: 2, title: "두 번째 뉴스레터", createdAt: "2025-10-08", status: "unpublished" },
+      { id: 3, title: "세 번째 뉴스레터", createdAt: "2025-10-09", status: "draft" },
+      { id: 4, title: "네 번째 뉴스레터", createdAt: "2025-10-10", status: "published" },
+    ]);
+  }),
+
+  // 뉴스레터 상세 조회
+  http.get("/api/newsletters/:id", ({ params }) => {
+    const { id } = params;
+    return HttpResponse.json({
+      id,
+      title: `${id} 번째 뉴스레터`,
+      content: `${id} 번째 뉴스레터 내용입니다.`,
+      createdAt: "2025-10-07",
+      status: "published",
+    });
+  }),
+
+  // 뉴스레터 등록
+  http.post("/api/newsletters", async ({ request }) => {
+    const newContent = await request.json();
+    console.log("새 뉴스레터 등록됨: ", newContent);
+    return HttpResponse.json({ message: "등록 성공", data: newContent }, { status: 201 });
+  }),
+
+  // 뉴스레터 수정
+  http.put("/api/newsletters/:id", async ({ params, request }) => {
+    const { id } = params;
+    const updatedContent = await request.json();
+    console.log(`${id} 번째 뉴스레터 수정됨: `, updatedContent);
+    return HttpResponse.json({ message: "수정 성공", data: updatedContent });
+  }),
+
+  // 뉴스레터 삭제
+  http.delete("/api/newsletters/:id", ({ params }) => {
+    const { id } = params;
+    console.log(`${id} 번째 뉴스레터 삭제됨`);
+    return HttpResponse.json({ message: `${id} 번째 뉴스레터 삭제됨` });
   }),
 
   // 구독자 목록 조회

@@ -13,7 +13,7 @@ type Content = {
   status: "draft" | "published";
 };
 
-const ContentsList = () => {
+const NewslettersList = () => {
   const navigate = useNavigate();
 
   const [search, setSearch] = useState("");
@@ -22,7 +22,8 @@ const ContentsList = () => {
 
   const options = [
     { value: "all", label: "전체 상태" },
-    { value: "published", label: "발행 완료" },
+    { value: "published", label: "발송 완료" },
+    { value: "unpublished", label: "예약 발송" },
     { value: "draft", label: "임시 저장" },
   ];
 
@@ -50,39 +51,43 @@ const ContentsList = () => {
 
   // 등록 버튼 클릭할 때
   const handleRegisterBtnClick = () => {
-    navigate(URL.ADMIN_CONTENTS_NEW);
+    navigate(URL.ADMIN_NEWSLETTERS_NEW);
   };
 
   return (
     <div className="bg-gray-100 mt-10 mb-4 ml-5 mr-5 rounded">
       <div className="p-5 flex justify-between items-center">
         <div className="flex flex-col gap-1">
-          <h3 className="text-2xl font-semibold">웹 콘텐츠 관리</h3>
-          <p className="text-gray-500">웹 사이트에 개별 아티클로 게시되는 콘텐츠를 관리합니다</p>
+          <h3 className="text-2xl font-semibold">뉴스레터 관리</h3>
+          <p className="text-gray-500">이메일로 발송되는 뉴스레터를 관리합니다</p>
         </div>
         <Button
           onClick={handleRegisterBtnClick}
           className="bg-black text-white px-8 py-3 rounded cursor-pointer hover:bg-gray-300 hover:text-black transition"
         >
-          <i className="fas fa-plus mr-3"></i>새 글 등록
+          <i className="fas fa-plus mr-3"></i>새 뉴스레터 만들기
         </Button>
       </div>
       <div className="p-5 flex justify-between gap-5">
-        <SearchInput value={search} onChange={setSearch} placeholder="글 제목 검색" />
+        <SearchInput value={search} onChange={setSearch} placeholder="뉴스레터 제목 검색" />
         <ComboBox value={filter} onChange={setFilter} options={options} />
       </div>
       <div className="p-5">
         <Table
           columns={[
-            { key: "title", label: "글 제목" },
+            { key: "title", label: "뉴스레터 제목" },
             {
               key: "status",
-              label: "발행 상태",
+              label: "발송 상태",
               render: (value) => {
                 const statusMap: Record<string, { label: string; className: string }> = {
                   published: {
-                    label: "발행 완료",
+                    label: "발송 완료",
                     className: "border border-gray-300 text-black",
+                  },
+                  unpublished: {
+                    label: "예약 발송",
+                    className: "bg-black text-white",
                   },
                   draft: {
                     label: "임시 저장",
@@ -100,7 +105,7 @@ const ContentsList = () => {
                 );
               },
             },
-            { key: "createdAt", label: "발행 일시" },
+            { key: "createdAt", label: "발송 일시" },
             {
               key: "manage",
               label: "작업",
@@ -157,4 +162,4 @@ const ContentsList = () => {
   );
 };
 
-export default ContentsList;
+export default NewslettersList;
