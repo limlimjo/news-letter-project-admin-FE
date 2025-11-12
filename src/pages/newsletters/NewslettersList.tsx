@@ -1,3 +1,4 @@
+import CommonModal from "@/components/common/modal/CommonModal";
 import Button from "@/components/ui/Button";
 import ComboBox from "@/components/ui/ComboBox";
 import SearchInput from "@/components/ui/SearchInput";
@@ -6,7 +7,7 @@ import URL from "@/constants/url";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 
-type Content = {
+type Newsletter = {
   id: number;
   title: string;
   createdAt: string;
@@ -18,7 +19,11 @@ const NewslettersList = () => {
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
-  const [tableData, setTableData] = useState<Content[]>([]);
+  const [tableData, setTableData] = useState<Newsletter[]>([]);
+
+  // modal 상태
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [selectedRow, setSelectedRow] = useState<Newsletter | null>(null);
 
   const options = [
     { value: "all", label: "전체 상태" },
@@ -30,11 +35,31 @@ const NewslettersList = () => {
   // api 호출
   const fetchData = async () => {
     try {
-      const response = await fetch("/api/contents");
+      const response = await fetch("/api/newsletters");
       const result = await response.json();
       setTableData(result);
     } catch (err) {
       console.error("요청 실패:", err);
+    }
+  };
+
+  // 모달창 확인 버튼시 삭제 함수
+  const deleteNewsletter = async () => {
+    if (!selectedRow) return;
+    try {
+      // 뉴스레터 삭제 API 호출
+      const res = await fetch(`/api/newsletters/${selectedRow.id}`, { method: "DELETE" });
+      const result = await res.json();
+      console.log(result.message);
+
+      // 뉴스레터 삭제후 데이터 갱신
+      setTableData((prevData) => prevData.filter((item) => item.id !== selectedRow.id));
+      fetchData();
+
+      alert("콘텐츠가 삭제되었습니다.");
+    } catch (error) {
+      console.error(error);
+      alert("콘텐츠 삭제 중 오류가 발생했습니다.");
     }
   };
 
@@ -110,43 +135,44 @@ const NewslettersList = () => {
               key: "manage",
               label: "작업",
               render: (_value, row) => {
+                const isPublished = row.status === "published";
+
                 // 수정 버튼 클릭할 때
                 const handleUpdate = () => {
                   console.log("수정 버튼 클릭할 때 기능 구현 예정");
                 };
 
                 // 삭제 버튼 클릭할 때
-                const handleDelete = async () => {
-                  if (!window.confirm(`${row.id}번째 컨텐츠를 삭제하시겠습니까?`)) return;
-
-                  try {
-                    // 콘텐츠 삭제 API 호출
-                    const res = await fetch(`/api/contents/${row.id}`, { method: "DELETE" });
-                    const result = await res.json();
-                    console.log(result.message);
-
-                    // 콘텐츠 삭제후 데이터 갱신
-                    setTableData((prevData) => prevData.filter((item) => item.id !== row.id));
-                    fetchData();
-
-                    alert("콘텐츠가 삭제되었습니다.");
-                  } catch (error) {
-                    console.error(error);
-                    alert("콘텐츠 삭제 중 오류가 발생했습니다.");
-                  }
+                const handleDelete = () => {
+                  setSelectedRow(row);
+                  setConfirmOpen(true);
                 };
 
                 return (
                   <div className="flex justify-center gap-2">
                     <button
                       onClick={handleUpdate}
-                      className="px-3 py-1.5 rounded-md text-xs font-medium border border-gray-400 bg-white text-black hover:bg-gray-100 cursor-pointer"
+                      disabled={isPublished}
+                      className={`px-3 py-1.5 rounded-md text-xs font-medium border border-gray-400 
+                        ${
+                          !isPublished
+                            ? "bg-white text-black hover:bg-gray-100 cursor-pointer"
+                            : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                        }
+                        `}
                     >
                       <i className="fas fa-pencil"></i>
                     </button>
                     <button
                       onClick={handleDelete}
-                      className="px-3 py-1.5 rounded-md text-xs font-medium border border-gray-400 bg-white text-black hover:bg-gray-100 cursor-pointer"
+                      disabled={isPublished}
+                      className={`px-3 py-1.5 rounded-md text-xs font-medium border border-gray-400
+                        ${
+                          !isPublished
+                            ? "bg-white text-black hover:bg-gray-100 cursor-pointer"
+                            : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                        }
+                        `}
                     >
                       <i className="fas fa-trash"></i>
                     </button>
@@ -158,6 +184,19 @@ const NewslettersList = () => {
           data={filteredData}
         />
       </div>
+      {/* 모달 컴포넌트 */}
+      <CommonModal
+        isOpen={confirmOpen}
+        title="뉴스레터 삭제"
+        message={"이 뉴스레터를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."}
+        confirmText="삭제"
+        cancelText="취소"
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={() => {
+          deleteNewsletter();
+          setConfirmOpen(false);
+        }}
+      />
     </div>
   );
 };

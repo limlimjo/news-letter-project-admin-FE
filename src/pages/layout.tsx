@@ -1,5 +1,5 @@
-import Header from "@/components/Header";
-import LeftMenu from "@/components/leftmenu/LeftMenu";
+import Header from "@/components/common/header/Header";
+import LeftMenu from "@/components/common/leftmenu/LeftMenu";
 import { Outlet } from "react-router";
 
 const layout = () => {

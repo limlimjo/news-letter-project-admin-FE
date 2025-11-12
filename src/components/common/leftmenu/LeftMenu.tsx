@@ -1,5 +1,5 @@
 import { Link, NavLink } from "react-router";
-import URL from "../../constants/url";
+import URL from "../../../constants/url";
 
 const LeftMenu = () => {
   return (

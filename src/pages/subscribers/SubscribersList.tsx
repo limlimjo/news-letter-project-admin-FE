@@ -1,3 +1,4 @@
+import CommonModal from "@/components/common/modal/CommonModal";
 import CardBox from "@/components/ui/CardBox";
 import ComboBox from "@/components/ui/ComboBox";
 import SearchInput from "@/components/ui/SearchInput";
@@ -16,6 +17,10 @@ const SubscribersList = () => {
   const [filter, setFilter] = useState("all");
   const [tableData, setTableData] = useState<Subscriber[]>([]);
 
+  // modal 상태
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [selectedRow, setSelectedRow] = useState<Subscriber | null>(null);
+
   const options = [
     { value: "all", label: "전체 상태" },
     { value: "subscribed", label: "구독중" },
@@ -24,17 +29,38 @@ const SubscribersList = () => {
   ];
 
   // api 호출
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("/api/subscribers");
-        const result = await response.json();
-        setTableData(result);
-      } catch (err) {
-        console.error("요청 실패:", err);
-      }
-    };
+  const fetchData = async () => {
+    try {
+      const response = await fetch("/api/subscribers");
+      const result = await response.json();
+      setTableData(result);
+    } catch (err) {
+      console.error("요청 실패:", err);
+    }
+  };
 
+  // 모달창 확인 버튼시 구독 취소 함수
+  const cancelSubscribe = async () => {
+    if (!selectedRow) return;
+    try {
+      // 구독 취소 API 호출
+      const res = await fetch(`/api/subscribers/${selectedRow.id}`, { method: "DELETE" });
+      const result = await res.json();
+      console.log(result.message);
+
+      // 구독 상태 변경
+      setTableData((prev) =>
+        prev.map((item) => (item.id === selectedRow.id ? { ...item, status: "unsubscribed" } : item))
+      );
+
+      alert("구독이 취소되었습니다.");
+    } catch (error) {
+      console.error(error);
+      alert("구독 취소 중 오류가 발생했습니다.");
+    }
+  };
+
+  useEffect(() => {
     fetchData();
   }, []);
 
@@ -119,25 +145,10 @@ const SubscribersList = () => {
               render: (_value, row) => {
                 const isSubscribed = row.status === "subscribed";
 
+                // 구독 취소 버튼 클릭할 때
                 const handleUnsubscribe = async () => {
-                  if (!window.confirm(`${row.email}님의 구독을 취소하시겠습니까?`)) return;
-
-                  try {
-                    // 구독 취소 API 호출
-                    const res = await fetch(`/api/subscribers/${row.id}`, { method: "DELETE" });
-                    const result = await res.json();
-                    console.log(result.message);
-
-                    // 구독 상태 변경
-                    setTableData((prev) =>
-                      prev.map((item) => (item.id === row.id ? { ...item, status: "unsubscribed" } : item))
-                    );
-
-                    alert("구독이 취소되었습니다.");
-                  } catch (error) {
-                    console.error(error);
-                    alert("구독 취소 중 오류가 발생했습니다.");
-                  }
+                  setSelectedRow(row);
+                  setConfirmOpen(true);
                 };
 
                 return (
@@ -161,6 +172,19 @@ const SubscribersList = () => {
           data={filteredData}
         />
       </div>
+      {/* 모달 컴포넌트 */}
+      <CommonModal
+        isOpen={confirmOpen}
+        title="구독 취소"
+        message={"구독 취소를 하시겠습니까? 이 작업은 되돌릴 수 없습니다."}
+        confirmText="확인"
+        cancelText="취소"
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={() => {
+          cancelSubscribe();
+          setConfirmOpen(false);
+        }}
+      />
     </div>
   );
 };

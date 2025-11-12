@@ -1,3 +1,4 @@
+import CommonModal from "@/components/common/modal/CommonModal";
 import Button from "@/components/ui/Button";
 import ComboBox from "@/components/ui/ComboBox";
 import SearchInput from "@/components/ui/SearchInput";
@@ -20,6 +21,10 @@ const ContentsList = () => {
   const [filter, setFilter] = useState("all");
   const [tableData, setTableData] = useState<Content[]>([]);
 
+  // modal 상태
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [selectedRow, setSelectedRow] = useState<Content | null>(null);
+
   const options = [
     { value: "all", label: "전체 상태" },
     { value: "published", label: "발행 완료" },
@@ -34,6 +39,26 @@ const ContentsList = () => {
       setTableData(result);
     } catch (err) {
       console.error("요청 실패:", err);
+    }
+  };
+
+  // 모달창 확인 버튼시 삭제 함수
+  const deleteContent = async () => {
+    if (!selectedRow) return;
+    try {
+      // 콘텐츠 삭제 API 호출
+      const res = await fetch(`/api/contents/${selectedRow.id}`, { method: "DELETE" });
+      const result = await res.json();
+      console.log(result.message);
+
+      // 콘텐츠 삭제후 데이터 갱신
+      setTableData((prevData) => prevData.filter((item) => item.id !== selectedRow.id));
+      fetchData();
+
+      alert("콘텐츠가 삭제되었습니다.");
+    } catch (error) {
+      console.error(error);
+      alert("콘텐츠 삭제 중 오류가 발생했습니다.");
     }
   };
 
@@ -111,24 +136,9 @@ const ContentsList = () => {
                 };
 
                 // 삭제 버튼 클릭할 때
-                const handleDelete = async () => {
-                  if (!window.confirm(`${row.id}번째 컨텐츠를 삭제하시겠습니까?`)) return;
-
-                  try {
-                    // 콘텐츠 삭제 API 호출
-                    const res = await fetch(`/api/contents/${row.id}`, { method: "DELETE" });
-                    const result = await res.json();
-                    console.log(result.message);
-
-                    // 콘텐츠 삭제후 데이터 갱신
-                    setTableData((prevData) => prevData.filter((item) => item.id !== row.id));
-                    fetchData();
-
-                    alert("콘텐츠가 삭제되었습니다.");
-                  } catch (error) {
-                    console.error(error);
-                    alert("콘텐츠 삭제 중 오류가 발생했습니다.");
-                  }
+                const handleDelete = () => {
+                  setSelectedRow(row);
+                  setConfirmOpen(true);
                 };
 
                 return (
@@ -153,6 +163,23 @@ const ContentsList = () => {
           data={filteredData}
         />
       </div>
+      {/* 모달 컴포넌트 */}
+      <CommonModal
+        isOpen={confirmOpen}
+        title="웹 콘텐츠 삭제"
+        message={
+          selectedRow && selectedRow.status == "published"
+            ? "이 글은 현재 웹페이지에 게시 중이며, 삭제하면 웹페이지에서 해당 글이 사라집니다. 삭제하시겠습니까?"
+            : "이 글을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+        }
+        confirmText="삭제"
+        cancelText="취소"
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={() => {
+          deleteContent();
+          setConfirmOpen(false);
+        }}
+      />
     </div>
   );
 };
