@@ -1,11 +1,11 @@
 import { Editor } from "@tinymce/tinymce-react";
 
-interface TinyMceTestProps {
+interface TinyMceProps {
   content: string;
   setContent: (value: string) => void;
 }
 
-const TinyMceEditor = ({ content, setContent }: TinyMceTestProps) => {
+const TinyMceEditor = ({ content, setContent }: TinyMceProps) => {
   const apikey = import.meta.env.VITE_EDITOR_API_KEY;
 
   return (
@@ -13,10 +13,12 @@ const TinyMceEditor = ({ content, setContent }: TinyMceTestProps) => {
       <Editor
         apiKey={apikey}
         value={content}
+        onEditorChange={(newContent) => setContent(newContent)}
         init={{
-          height: 400,
+          height: 610,
           width: "100%",
           menubar: false,
+          preview_styles: false,
           plugins: [
             "advlist",
             "autolink",
@@ -40,62 +42,40 @@ const TinyMceEditor = ({ content, setContent }: TinyMceTestProps) => {
           toolbar:
             "undo redo | blocks | bold italic underline | " +
             "alignleft aligncenter alignright alignjustify | " +
-            "bullist numlist outdent indent | removeformat | preview | help | code",
-          content_style: `
-            body {
-                font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-                font-size: 16px;
-                color: #1f2937; /* gray-800 */
-                line-height: 1.25;
-                padding: 1rem;
-            }
+            "bullist numlist outdent indent | image | code",
 
-            h1, h2, h3, h4, h5, h6 {
-                font-weight: 600;
-                line-height: 1.25;
-                margin-top: 0.5em;
-                margin-bottom: 0.5em;
-            }
+          // 이미지 업로드 핸들러 추가
+          images_upload_handler: async (blobInfo, progress) => {
+            const file = blobInfo.blob();
+            console.log("file 출력: ", file);
+            console.log("blobInfo 출력: ", blobInfo);
+            console.log("progress 출력: ", progress);
 
-            h1 { font-size: 2rem; }
-            h2 { font-size: 1.5rem; }
-            h3 { font-size: 1.25rem; }
+            const formData = new FormData();
+            formData.append("file", file);
 
-            p {
-                margin: 0.75em 0;
-            }
+            try {
+              // TODO: 백엔드 이미지 업로드 API 호출 예정 (현재는 임시 URL)
+              const res = await fetch("/api/upload/images", {
+                method: "POST",
+                body: formData,
+              });
 
-            ul, ol {
-                padding-left: 1.5em;
-                margin: 0.5em 0;
-            }
+              if (!res.ok) {
+                throw new Error("Image upload failed");
+              }
 
-            img {
-                max-width: 100%;
-                border-radius: 0.5rem;
-            }
+              const data = await res.json();
+              console.log("업로드 응답 데이터: ", data);
 
-            table {
-                border-collapse: collapse;
-                width: 100%;
-                margin: 1em 0;
+              // 서버에서 url 반환
+              return data.url;
+            } catch (error) {
+              console.error(error);
+              throw error;
             }
-
-            th, td {
-                border: 1px solid #d1d5db;
-                padding: 0.5rem;
-                text-align: left;
-            }
-
-            code {
-                background: #f3f4f6;
-                padding: 0.2rem 0.4rem;
-                border-radius: 0.25rem;
-            }
-            `,
-          preview_styles: false,
+          },
         }}
-        onEditorChange={(newContent) => setContent(newContent)}
       />
     </div>
   );

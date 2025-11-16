@@ -56,10 +56,10 @@ const NewslettersList = () => {
       setTableData((prevData) => prevData.filter((item) => item.id !== selectedRow.id));
       fetchData();
 
-      alert("콘텐츠가 삭제되었습니다.");
+      alert("뉴스레터가 삭제되었습니다.");
     } catch (error) {
       console.error(error);
-      alert("콘텐츠 삭제 중 오류가 발생했습니다.");
+      alert("뉴스레터 삭제 중 오류가 발생했습니다.");
     }
   };
 
@@ -76,7 +76,7 @@ const NewslettersList = () => {
 
   // 등록 버튼 클릭할 때
   const handleRegisterBtnClick = () => {
-    navigate(URL.ADMIN_NEWSLETTERS_NEW);
+    navigate(URL.ADMIN_NEWSLETTERS_CREATE);
   };
 
   return (
@@ -139,7 +139,8 @@ const NewslettersList = () => {
 
                 // 수정 버튼 클릭할 때
                 const handleUpdate = () => {
-                  console.log("수정 버튼 클릭할 때 기능 구현 예정");
+                  const path = URL.ADMIN_NEWSLETTERS_MODIFY.replace(":id", String(row.id));
+                  navigate(path, { state: { status: row.status } });
                 };
 
                 // 삭제 버튼 클릭할 때

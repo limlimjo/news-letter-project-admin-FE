@@ -75,7 +75,7 @@ const ContentsList = () => {
 
   // 등록 버튼 클릭할 때
   const handleRegisterBtnClick = () => {
-    navigate(URL.ADMIN_CONTENTS_NEW);
+    navigate(URL.ADMIN_CONTENTS_CREATE);
   };
 
   return (
@@ -132,7 +132,8 @@ const ContentsList = () => {
               render: (_value, row) => {
                 // 수정 버튼 클릭할 때
                 const handleUpdate = () => {
-                  console.log("수정 버튼 클릭할 때 기능 구현 예정");
+                  const path = URL.ADMIN_CONTENTS_MODIFY.replace(":id", String(row.id));
+                  navigate(path, { state: { status: row.status } });
                 };
 
                 // 삭제 버튼 클릭할 때
