@@ -3,7 +3,7 @@ import { http, HttpResponse } from "msw";
 
 // 간단한 메모리 스토어 (mock용)
 // 1. 이미지 업로드용 스토어
-const imageStore: { id: string; url: string; name?: string }[] = [];
+const imageStore: { id: string; url?: string; name?: string; mime: string; buffer: Uint8Array }[] = [];
 let nextImageId = 1;
 // 2. 웹 콘텐츠 스토어
 const contentsStore: {
@@ -114,7 +114,11 @@ export const handlers = [
 
   // 웹 콘텐츠 등록
   http.post("/api/contents", async ({ request }) => {
-    const body = await request.json();
+    const body = (await request.json()) as {
+      title: string;
+      content: string;
+      status: string;
+    };
     const id = nextContentId++;
     const status = body.status || "draft";
     const now = new Date().toISOString().split("T")[0];
@@ -137,7 +141,11 @@ export const handlers = [
   // 웹 콘텐츠 수정
   http.put("/api/contents/:id", async ({ params, request }) => {
     const { id } = params;
-    const body = await request.json();
+    const body = (await request.json()) as {
+      title: string;
+      content: string;
+      status: string;
+    };
     const idx = contentsStore.findIndex((c) => String(c.id) === String(id));
     if (idx === -1) {
       return HttpResponse.json({ message: "해당되는 콘텐츠가 없습니다." }, { status: 404 });
@@ -187,7 +195,13 @@ export const handlers = [
 
   // 뉴스레터 등록
   http.post("/api/newsletters", async ({ request }) => {
-    const body = await request.json();
+    const body = (await request.json()) as {
+      title: string;
+      content: string;
+      status: string;
+      reservationDate?: string;
+      reservationTime?: string;
+    };
     const id = nextNewsletterId++;
     const status = body.status || "draft";
     const now = new Date().toISOString().split("T")[0];
@@ -212,7 +226,13 @@ export const handlers = [
   // 뉴스레터 수정
   http.put("/api/newsletters/:id", async ({ params, request }) => {
     const { id } = params;
-    const body = await request.json();
+    const body = (await request.json()) as {
+      title: string;
+      content: string;
+      status: string;
+      reservationDate?: string;
+      reservationTime?: string;
+    };
     const idx = newslettersStore.findIndex((c) => String(c.id) === String(id));
     if (idx === -1) {
       return HttpResponse.json({ message: "해당되는 뉴스레터가 없습니다." }, { status: 404 });
@@ -278,9 +298,9 @@ export const handlers = [
       // 브라우저에서 formData로 보냈을 때
       const form = await request.formData();
       const file = form.get("file") as File | null;
-      if (file) {
-        filename = (file as any).name ?? filename;
-        mime = (file as any).type || mime;
+      if (file instanceof File) {
+        filename = file.name ?? filename;
+        mime = file.type || mime;
         const ab = await (file as File).arrayBuffer();
         buffer = new Uint8Array(ab);
       } else {
@@ -316,7 +336,7 @@ export const handlers = [
     }
 
     // 브라우저에서 요청하는 경우, Response로 바이너리 반환 (Content-Type은 저장된 mime 사용)
-    return new Response(img.buffer, {
+    return new Response(img.buffer.buffer as unknown as BodyInit, {
       status: 200,
       headers: {
         "Content-Type": img.mime,

@@ -3,14 +3,12 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import RootLayout from "./pages/layout"; // 레이아웃 컴포넌트
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
-import ContentDetail from "./pages/contents/ContentDetail";
 import ContentEdit from "./pages/contents/ContentEdit";
 import ContentsList from "./pages/contents/ContentsList";
 import SubscribersList from "./pages/subscribers/SubscribersList";
 import DashboardList from "./pages/dashboard/DashboardList";
 import URL from "./constants/url";
 import NewslettersList from "./pages/newsletters/NewslettersList";
-import NewsletterDetail from "./pages/newsletters/NewsletterDetail";
 import NewsletterEdit from "./pages/newsletters/NewsletterEdit";
 import CODE from "./constants/code";
 

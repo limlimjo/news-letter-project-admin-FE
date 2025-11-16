@@ -5,6 +5,13 @@ interface TinyMceProps {
   setContent: (value: string) => void;
 }
 
+interface TinyMCEBlobInfo {
+  blob(): Blob;
+  filename(): string;
+}
+
+type TinyMCEProgressFn = (percent: number) => void;
+
 const TinyMceEditor = ({ content, setContent }: TinyMceProps) => {
   const apikey = import.meta.env.VITE_EDITOR_API_KEY;
 
@@ -45,7 +52,7 @@ const TinyMceEditor = ({ content, setContent }: TinyMceProps) => {
             "bullist numlist outdent indent | image | code",
 
           // 이미지 업로드 핸들러 추가
-          images_upload_handler: async (blobInfo, progress) => {
+          images_upload_handler: async (blobInfo: TinyMCEBlobInfo, progress: TinyMCEProgressFn) => {
             const file = blobInfo.blob();
             console.log("file 출력: ", file);
             console.log("blobInfo 출력: ", blobInfo);

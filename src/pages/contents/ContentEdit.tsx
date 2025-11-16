@@ -20,7 +20,7 @@ const ContentEdit = ({ mode = CODE.MODE_CREATE }: Props) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState<"draft" | "published" | "">(passedStatus ?? "");
+  const [status, _setStatus] = useState<"draft" | "published" | "">(passedStatus ?? "");
   const modifyMode = mode === CODE.MODE_MODIFY;
 
   // 수정 모드일 경우 기존 데이터 불러오기
