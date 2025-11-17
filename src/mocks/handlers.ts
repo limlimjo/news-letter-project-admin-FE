@@ -95,6 +95,20 @@ const newslettersStore: {
 ];
 let nextNewsletterId = newslettersStore.length + 1;
 
+// 3. 구독자 스토어
+const subscribersStore: {
+  id: number;
+  email: string;
+  subscribedAt: string;
+  status: string;
+}[] = [
+  { id: 1, email: "test1@email.com", subscribedAt: "2025-10-01", status: "subscribed" },
+  { id: 2, email: "test2@email.com", subscribedAt: "2025-10-05", status: "unsubscribed" },
+  { id: 3, email: "test3@email.com", subscribedAt: "2025-10-10", status: "return" },
+  { id: 4, email: "test4@email.com", subscribedAt: "2025-11-01", status: "subscribed" },
+  { id: 5, email: "test5@email.com", subscribedAt: "2025-12-01", status: "subscribed" },
+];
+
 // 콘텐츠 등록/수정/삭제/조회, 구독자 목록 조회 모킹
 export const handlers = [
   // 웹 콘텐츠 목록 조회
@@ -347,19 +361,20 @@ export const handlers = [
 
   // 구독자 목록 조회
   http.get("/api/subscribers", () => {
-    return HttpResponse.json([
-      { id: 1, email: "test1@email.com", subscribedAt: "2025-10-01", status: "subscribed" },
-      { id: 2, email: "test2@email.com", subscribedAt: "2025-10-05", status: "unsubscribed" },
-      { id: 3, email: "test3@email.com", subscribedAt: "2025-10-10", status: "return" },
-      { id: 4, email: "test4@email.com", subscribedAt: "2025-11-01", status: "subscribed" },
-      { id: 5, email: "test5@email.com", subscribedAt: "2025-12-01", status: "subscribed" },
-    ]);
+    const list = subscribersStore;
+    console.log("콘텐츠 목록 조회: ", list);
+    return HttpResponse.json(list);
   }),
 
-  // 구독 취소
+  // 구독 삭제
   http.delete("/api/subscribers/:id", ({ params }) => {
     const { id } = params;
-    console.log(`${id} 번 회원 구독 취소됨`);
-    return HttpResponse.json({ message: `${id} 번 회원 구독 취소됨` });
+    const idx = subscribersStore.findIndex((c) => String(c.id) === String(id));
+    if (idx === -1) {
+      return HttpResponse.json({ message: "해당되는 구독자가 없습니다." }, { status: 404 });
+    }
+    const removedSubscriber = subscribersStore.splice(idx, 1)[0];
+    console.log(`${id} 번 회원 구독 삭제됨`, removedSubscriber);
+    return HttpResponse.json({ message: `${id} 번 회원 구독 삭제됨`, data: removedSubscriber });
   }),
 ];

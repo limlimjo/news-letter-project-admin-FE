@@ -39,24 +39,23 @@ const SubscribersList = () => {
     }
   };
 
-  // 모달창 확인 버튼시 구독 취소 함수
+  // 모달창 확인 버튼시 구독 삭제 함수
   const cancelSubscribe = async () => {
     if (!selectedRow) return;
     try {
-      // 구독 취소 API 호출
+      // 구독 삭제 API 호출
       const res = await fetch(`/api/subscribers/${selectedRow.id}`, { method: "DELETE" });
       const result = await res.json();
       console.log(result.message);
 
-      // 구독 상태 변경
-      setTableData((prev) =>
-        prev.map((item) => (item.id === selectedRow.id ? { ...item, status: "unsubscribed" } : item))
-      );
+      // 구독 삭제후 데이터 갱신
+      setTableData((prevData) => prevData.filter((item) => item.id !== selectedRow.id));
+      fetchData();
 
-      alert("구독이 취소되었습니다.");
+      alert("구독자 정보가 완전 삭제되었습니다.");
     } catch (error) {
       console.error(error);
-      alert("구독 취소 중 오류가 발생했습니다.");
+      alert("구독자 정보 삭제 중 오류가 발생했습니다.");
     }
   };
 
@@ -143,8 +142,6 @@ const SubscribersList = () => {
               key: "manage",
               label: "관리",
               render: (_value, row) => {
-                const isSubscribed = row.status === "subscribed";
-
                 // 구독 취소 버튼 클릭할 때
                 const handleUnsubscribe = async () => {
                   setSelectedRow(row);
@@ -154,16 +151,9 @@ const SubscribersList = () => {
                 return (
                   <button
                     onClick={handleUnsubscribe}
-                    disabled={!isSubscribed}
-                    className={`px-3 py-1.5 rounded-md text-xs font-medium border border-gray-400
-          ${
-            isSubscribed
-              ? "bg-white text-black hover:bg-gray-100 cursor-pointer"
-              : "bg-gray-100 text-gray-400 cursor-not-allowed"
-          }
-        `}
+                    className="px-3 py-1.5 rounded-md text-xs text-red-500 font-medium border border-gray-400 bg-white"
                   >
-                    <i className="fas fa-user-xmark"></i>
+                    <i className="fa-regular fa-trash-can"></i>
                   </button>
                 );
               },
@@ -175,10 +165,18 @@ const SubscribersList = () => {
       {/* 모달 컴포넌트 */}
       <CommonModal
         isOpen={confirmOpen}
-        title="구독 취소"
-        message={"구독 취소를 하시겠습니까? 이 작업은 되돌릴 수 없습니다."}
-        confirmText="확인"
+        title="구독자 정보 완전 삭제"
+        message={
+          <>
+            <p>{selectedRow?.email}님의 정보를 데이터베이스에서 완전히 삭제하시겠습니까?</p>
+            <p className="text-red-600 font-semibold">
+              이 작업은 되돌릴 수 없으며, 개인정보처리방침에 따라 진행됩니다.
+            </p>
+          </>
+        }
+        confirmText="완전 삭제"
         cancelText="취소"
+        confirmClassName="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-400"
         onClose={() => setConfirmOpen(false)}
         onConfirm={() => {
           cancelSubscribe();

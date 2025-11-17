@@ -1,9 +1,11 @@
 interface CommonModalProps {
   isOpen: boolean;
   title?: string;
-  message: string;
+  message?: React.ReactNode;
   confirmText?: string;
   cancelText?: string;
+  confirmClassName?: string;
+  cancelClassName?: string;
   onClose: () => void;
   onConfirm?: () => void;
 }
@@ -14,10 +16,15 @@ const CommonModal: React.FC<CommonModalProps> = ({
   message,
   confirmText = "확인",
   cancelText = "취소",
+  confirmClassName,
+  cancelClassName,
   onClose,
   onConfirm,
 }) => {
   if (!isOpen) return null;
+
+  const defaultCancelClass = "px-4 py-2 bg-white border border-gray-300 rounded hover:bg-gray-100";
+  const defaultConfirmClass = "px-4 py-2 bg-black text-white rounded hover:bg-gray-800";
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">
@@ -25,11 +32,11 @@ const CommonModal: React.FC<CommonModalProps> = ({
         {title && <h2 className="text-xl font-bold mb-4">{title}</h2>}
         <p className="mb-6">{message}</p>
         <div className="flex justify-end gap-3">
-          <button className="px-4 py-2 bg-white border border-gray-300 rounded hover:bg-gray-400" onClick={onClose}>
+          <button className={cancelClassName ?? defaultCancelClass} onClick={onClose}>
             {cancelText}
           </button>
           {onConfirm && (
-            <button className="px-4 py-2 bg-black text-white rounded hover:bg-gray-400" onClick={onConfirm}>
+            <button className={confirmClassName ?? defaultConfirmClass} onClick={onConfirm}>
               {confirmText}
             </button>
           )}

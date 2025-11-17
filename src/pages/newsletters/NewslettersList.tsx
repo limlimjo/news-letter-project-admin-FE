@@ -175,7 +175,7 @@ const NewslettersList = () => {
                         }
                         `}
                     >
-                      <i className="fas fa-trash"></i>
+                      <i className="fa-regular fa-trash-can"></i>
                     </button>
                   </div>
                 );

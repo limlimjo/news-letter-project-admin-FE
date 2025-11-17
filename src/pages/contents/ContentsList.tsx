@@ -154,7 +154,7 @@ const ContentsList = () => {
                       onClick={handleDelete}
                       className="px-3 py-1.5 rounded-md text-xs font-medium border border-gray-400 bg-white text-black hover:bg-gray-100 cursor-pointer"
                     >
-                      <i className="fas fa-trash"></i>
+                      <i className="fa-regular fa-trash-can"></i>
                     </button>
                   </div>
                 );
