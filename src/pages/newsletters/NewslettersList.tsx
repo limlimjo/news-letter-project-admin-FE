@@ -1,6 +1,7 @@
 import CommonModal from "@/components/common/modal/CommonModal";
 import Button from "@/components/ui/Button";
 import ComboBox from "@/components/ui/ComboBox";
+import Pagination from "@/components/ui/Pagination";
 import SearchInput from "@/components/ui/SearchInput";
 import Table from "@/components/ui/Table";
 import URL from "@/constants/url";
@@ -14,12 +15,25 @@ type Newsletter = {
   status: "draft" | "published";
 };
 
+type PaginationInfo = {
+  currentPageNo: number;
+  pageSize: number;
+  totalRecordCount: number;
+  recordCountPerPage: number;
+};
+
 const NewslettersList = () => {
   const navigate = useNavigate();
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [tableData, setTableData] = useState<Newsletter[]>([]);
+  const [paginationInfo, setPaginationInfo] = useState<PaginationInfo>({
+    currentPageNo: 1,
+    pageSize: 10,
+    totalRecordCount: 0,
+    recordCountPerPage: 0,
+  });
 
   // modal 상태
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -80,7 +94,7 @@ const NewslettersList = () => {
   };
 
   return (
-    <div className="bg-gray-100 mt-10 mb-4 ml-5 mr-5 rounded">
+    <div className="h-full bg-gray-100 mt-10 mb-4 ml-5 mr-5 rounded">
       <div className="p-5 flex justify-between items-center">
         <div className="flex flex-col gap-1">
           <h3 className="text-2xl font-semibold">뉴스레터 관리</h3>
@@ -185,6 +199,7 @@ const NewslettersList = () => {
           data={filteredData}
         />
       </div>
+      <Pagination pagination={paginationInfo} moveToPage={(passedPage) => {}} />
       {/* 모달 컴포넌트 */}
       <CommonModal
         isOpen={confirmOpen}

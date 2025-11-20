@@ -1,6 +1,7 @@
 import CommonModal from "@/components/common/modal/CommonModal";
 import CardBox from "@/components/ui/CardBox";
 import ComboBox from "@/components/ui/ComboBox";
+import Pagination from "@/components/ui/Pagination";
 import SearchInput from "@/components/ui/SearchInput";
 import Table from "@/components/ui/Table";
 import { useEffect, useState } from "react";
@@ -12,10 +13,23 @@ type Subscriber = {
   status: "subscribed" | "unsubscribed" | "return";
 };
 
+type PaginationInfo = {
+  currentPageNo: number;
+  pageSize: number;
+  totalRecordCount: number;
+  recordCountPerPage: number;
+};
+
 const SubscribersList = () => {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [tableData, setTableData] = useState<Subscriber[]>([]);
+  const [paginationInfo, setPaginationInfo] = useState<PaginationInfo>({
+    currentPageNo: 1,
+    pageSize: 10,
+    totalRecordCount: 0,
+    recordCountPerPage: 0,
+  });
 
   // modal 상태
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -76,7 +90,7 @@ const SubscribersList = () => {
   const returnedCount = tableData.filter((row) => row.status === "return").length;
 
   return (
-    <div className="bg-gray-100 mt-10 mb-4 ml-5 mr-5 rounded">
+    <div className="h-full bg-gray-100 mt-10 mb-4 ml-5 mr-5 rounded">
       <div className="p-5">
         <h3 className="text-2xl font-semibold">구독자 관리</h3>
       </div>
@@ -183,6 +197,7 @@ const SubscribersList = () => {
           setConfirmOpen(false);
         }}
       />
+      <Pagination pagination={paginationInfo} moveToPage={(passedPage) => {}} />
     </div>
   );
 };
