@@ -54,29 +54,38 @@ const TinyMceEditor = ({ content, setContent }: TinyMceProps) => {
           // 이미지 업로드 핸들러 추가
           images_upload_handler: async (blobInfo: TinyMCEBlobInfo, progress: TinyMCEProgressFn) => {
             const file = blobInfo.blob();
+            const filename = blobInfo.filename();
             console.log("file 출력: ", file);
-            console.log("blobInfo 출력: ", blobInfo);
-            console.log("progress 출력: ", progress);
-
-            const formData = new FormData();
-            formData.append("file", file);
 
             try {
-              // TODO: 백엔드 이미지 업로드 API 호출 예정 (현재는 임시 URL)
-              const res = await fetch("/api/upload/images", {
-                method: "POST",
-                body: formData,
+              // presigned URL 요청 (TODO: 백엔드 API 만들어지면 수정 예정)
+              const res = await fetch('/api/presigned-url', {
+                method: 'POST',
+                body: JSON.stringify({ filename }),
+                headers: {
+                  'Content-Type': 'application/json'
+                }
               });
 
               if (!res.ok) {
                 throw new Error("Image upload failed");
               }
 
-              const data = await res.json();
-              console.log("업로드 응답 데이터: ", data);
-
-              // 서버에서 url 반환
-              return data.url;
+              const { url } = await res.json();
+              
+              // 실제 파일 업로드
+              await fetch(url, {
+                method: 'PUT',
+                body: file,
+                headers: {
+                  'Content-Type': file.type
+                }
+              });
+              
+              // url 추출
+              const s3Url = url.split('?')[0];
+              
+              return s3Url;
             } catch (error) {
               console.error(error);
               throw error;
