@@ -10,7 +10,7 @@ type Subscriber = {
   id: number;
   email: string;
   subscribedAt: string;
-  status: "subscribed" | "unsubscribed" | "return";
+  status: "subscribed" | "return";
 };
 
 type PaginationInfo = {
@@ -38,7 +38,6 @@ const SubscribersList = () => {
   const options = [
     { value: "all", label: "전체 상태" },
     { value: "subscribed", label: "구독중" },
-    { value: "unsubscribed", label: "구독취소" },
     { value: "return", label: "반송" },
   ];
 
@@ -86,7 +85,6 @@ const SubscribersList = () => {
 
   // 상태별 카운트
   const subscribedCount = tableData.filter((row) => row.status === "subscribed").length;
-  const unsubscribedCount = tableData.filter((row) => row.status === "unsubscribed").length;
   const returnedCount = tableData.filter((row) => row.status === "return").length;
 
   return (
@@ -94,17 +92,11 @@ const SubscribersList = () => {
       <div className="p-5">
         <h3 className="text-2xl font-semibold">구독자 관리</h3>
       </div>
-      <div className="grid grid-cols-3 gap-3 p-5">
+      <div className="grid grid-cols-2 gap-3 p-5">
         <CardBox className="py-[35px]">
           <div className="ml-7">
             <div className="text-gray-500">총 구독자수</div>
             <h4 className="text-2xl font-semibold text-gray-700">{subscribedCount}</h4>
-          </div>
-        </CardBox>
-        <CardBox className="py-[35px]">
-          <div className="ml-7">
-            <div className="text-gray-500">구독 취소</div>
-            <h4 className="text-2xl font-semibold text-gray-700">{unsubscribedCount}</h4>
           </div>
         </CardBox>
         <CardBox className="py-[35px]">
@@ -135,10 +127,6 @@ const SubscribersList = () => {
                   return: {
                     label: "반송",
                     className: "bg-red-700 text-white",
-                  },
-                  unsubscribed: {
-                    label: "구독 취소",
-                    className: "bg-gray-200 text-black",
                   },
                 };
 

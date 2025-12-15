@@ -103,7 +103,7 @@ const subscribersStore: {
   status: string;
 }[] = [
   { id: 1, email: "test1@email.com", subscribedAt: "2025-10-01", status: "subscribed" },
-  { id: 2, email: "test2@email.com", subscribedAt: "2025-10-05", status: "unsubscribed" },
+  { id: 2, email: "test2@email.com", subscribedAt: "2025-10-05", status: "subscribed" },
   { id: 3, email: "test3@email.com", subscribedAt: "2025-10-10", status: "return" },
   { id: 4, email: "test4@email.com", subscribedAt: "2025-11-01", status: "subscribed" },
   { id: 5, email: "test5@email.com", subscribedAt: "2025-12-01", status: "subscribed" },
