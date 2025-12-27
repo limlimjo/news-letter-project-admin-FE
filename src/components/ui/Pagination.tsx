@@ -69,13 +69,11 @@ const Pagination = ({ pagination, moveToPage }: PaginationProps) => {
         );
         paginationTag.push(currentPage);
       } else {
-        console.log("다른 페이지 출력");
         // 다른 페이지
         const otherPage = (
           <li key={i} className="px-3 py-1 rounded bg-gray-200">
             <button
               onClick={() => {
-                console.log("페이지 버튼 클릭");
                 moveToPage(i);
               }}
             >
@@ -84,7 +82,6 @@ const Pagination = ({ pagination, moveToPage }: PaginationProps) => {
           </li>
         );
 
-        console.log("다른 페이지 출력2");
         console.log(otherPage);
         paginationTag.push(otherPage);
       }

@@ -7,10 +7,10 @@ import Table from "@/components/ui/Table";
 import { useEffect, useState } from "react";
 
 type Subscriber = {
-  id: number;
+  subscriberId: number;
   email: string;
-  subscribedAt: string;
-  status: "subscribed" | "return";
+  created_at: string;
+  statusBcode: "SUB" | "UNSUB";
 };
 
 type PaginationInfo = {
@@ -21,8 +21,10 @@ type PaginationInfo = {
 };
 
 const SubscribersList = () => {
+  const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState("ALL");
+  const [page, setPage] = useState(0);
   const [tableData, setTableData] = useState<Subscriber[]>([]);
   const [paginationInfo, setPaginationInfo] = useState<PaginationInfo>({
     currentPageNo: 1,
@@ -31,41 +33,101 @@ const SubscribersList = () => {
     recordCountPerPage: 0,
   });
 
+  // 통계 카운트 상태 추가
+  const [subscribedCount, setSubscribedCount] = useState<number>(0);
+  const [returnedCount, setReturnedCount] = useState<number>(0);
+
   // modal 상태
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState<Subscriber | null>(null);
 
   const options = [
-    { value: "all", label: "전체 상태" },
-    { value: "subscribed", label: "구독중" },
-    { value: "return", label: "반송" },
+    { value: "ALL", label: "전체 상태" },
+    { value: "SUB", label: "구독중" },
+    { value: "UNSUB", label: "반송" }, // TODO: 구독취소 없애기로 해서 반송은 어떤 코드로 보내면 될지 확인 필요
   ];
 
-  // api 호출
+  // 검색 api 호출
   const fetchData = async () => {
     try {
-      const response = await fetch("/api/subscribers");
-      const result = await response.json();
-      setTableData(result);
+      const params = new URLSearchParams({
+        email: search || "",
+        statusBcode: filter || "",
+        page: String(page),
+        size: "5",
+      });
+
+      const res = await fetch(`/api/api/v1/admin/subscriber/list?${params.toString()}`,  {
+        method: "GET",
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+
+        setTableData(data.items);
+        setPaginationInfo({
+          currentPageNo: data.page + 1,
+          pageSize: 5,
+          totalRecordCount: data.totalElements,
+          recordCountPerPage: data.size,
+        });
+      } else {
+        alert("구독자 정보 조회에 실패했습니다.");
+        return false;
+      }
+
     } catch (err) {
       console.error("요청 실패:", err);
+      alert("구독자 정보 조회 중 오류가 발생했습니다.");
     }
   };
+
+  // 건수 api 호출
+  const fetchCountData = async () => {
+    try {
+
+      const res = await fetch('/api/api/v1/admin/subscriber/count', {
+        method: "GET",
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        // 상태별 카운트
+        const totalSubscribers = data.totalSubscribers;
+        const totalUnsubscribers = data.totalUnsubscribers;
+
+        setSubscribedCount(Number(totalSubscribers));
+        setReturnedCount(Number(totalUnsubscribers));
+      } else {
+        alert("구독자수 조회에 실패했습니다.");
+        return false;
+      }
+
+    } catch (err) {
+      console.error("요청 실패:", err);
+      alert("구독자수 조회 중 오류가 발생했습니다.");
+    }
+  }
 
   // 모달창 확인 버튼시 구독 삭제 함수
   const cancelSubscribe = async () => {
     if (!selectedRow) return;
     try {
       // 구독 삭제 API 호출
-      const res = await fetch(`/api/subscribers/${selectedRow.id}`, { method: "DELETE" });
-      const result = await res.json();
-      console.log(result.message);
+      const res = await fetch(`/api/api/v1/admin/subscriber/delete/${selectedRow.subscriberId}`, { 
+        method: "DELETE" 
+      });
 
-      // 구독 삭제후 데이터 갱신
-      setTableData((prevData) => prevData.filter((item) => item.id !== selectedRow.id));
-      fetchData();
-
-      alert("구독자 정보가 완전 삭제되었습니다.");
+      if (res.ok) {
+        // 구독 삭제후 데이터 갱신
+        setTableData((prevData) => prevData.filter((item) => item.subscriberId !== selectedRow.subscriberId));
+        fetchData();
+        alert("구독자 정보가 완전 삭제되었습니다.");
+      } else {
+        alert("구독자 정보 삭제에 실패하였습니다.");
+        return;
+      }
     } catch (error) {
       console.error(error);
       alert("구독자 정보 삭제 중 오류가 발생했습니다.");
@@ -73,19 +135,12 @@ const SubscribersList = () => {
   };
 
   useEffect(() => {
-    fetchData();
+    fetchCountData();
   }, []);
 
-  // 검색 + 필터 적용
-  const filteredData = tableData.filter((row) => {
-    const matchesFilter = filter === "all" || row.status === filter;
-    const matchesSearch = row.email.toLowerCase().includes(search.toLowerCase());
-    return matchesFilter && matchesSearch;
-  });
-
-  // 상태별 카운트
-  const subscribedCount = tableData.filter((row) => row.status === "subscribed").length;
-  const returnedCount = tableData.filter((row) => row.status === "return").length;
+  useEffect(() => {
+    fetchData();
+  }, [page, search, filter]);
 
   return (
     <div className="h-full bg-gray-100 mt-10 mb-4 ml-5 mr-5 rounded">
@@ -107,24 +162,39 @@ const SubscribersList = () => {
         </CardBox>
       </div>
       <div className="p-5 flex justify-between gap-5">
-        <SearchInput value={search} onChange={setSearch} placeholder="이메일 주소 검색" />
-        <ComboBox value={filter} onChange={setFilter} options={options} />
+        <SearchInput 
+          value={searchInput} 
+          onChange={setSearchInput}
+          onEnter={() => {
+            setSearch(searchInput);
+            setPage(0);
+          }}
+          placeholder="이메일 주소 검색"
+        />
+        <ComboBox 
+          value={filter} 
+          onChange={(value) => {
+            setFilter(value);
+            setPage(0);
+          }} 
+          options={options} 
+        />
       </div>
       <div className="p-5">
         <Table
           columns={[
             { key: "email", label: "이메일 주소" },
-            { key: "subscribedAt", label: "구독일" },
+            { key: "created_at", label: "구독일" },
             {
-              key: "status",
+              key: "statusBcode",
               label: "구독 상태",
               render: (value) => {
                 const statusMap: Record<string, { label: string; className: string }> = {
-                  subscribed: {
+                  SUB: {
                     label: "구독 중",
                     className: "bg-black text-white",
                   },
-                  return: {
+                  UNSUB: {
                     label: "반송",
                     className: "bg-red-700 text-white",
                   },
@@ -161,7 +231,7 @@ const SubscribersList = () => {
               },
             },
           ]}
-          data={filteredData}
+          data={tableData}
         />
       </div>
       {/* 모달 컴포넌트 */}
@@ -185,7 +255,9 @@ const SubscribersList = () => {
           setConfirmOpen(false);
         }}
       />
-      <Pagination pagination={paginationInfo} moveToPage={(passedPage) => {}} />
+      <Pagination pagination={paginationInfo} moveToPage={(passedPage) => {
+        setPage(passedPage - 1);
+      }} />
     </div>
   );
 };
