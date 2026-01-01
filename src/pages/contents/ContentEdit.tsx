@@ -145,8 +145,8 @@ const ContentEdit = ({ mode = CODE.MODE_CREATE }: Props) => {
             {activeTab === "editor" ? (
               <TinyMceEditor content={content} setContent={setContent} />
             ) : (
-              <div className="mt-4 bg-white rounded min-h-[400px] p-4">
-                <div className="editor-preview max-w-none" dangerouslySetInnerHTML={{ __html: content }} />
+              <div className="mt-4 bg-white rounded p-4">
+                <div className="editor-preview max-w-none h-[610px]" dangerouslySetInnerHTML={{ __html: content }} />
               </div>
             )}
           </div>

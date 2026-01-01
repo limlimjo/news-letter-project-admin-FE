@@ -122,6 +122,7 @@ const SubscribersList = () => {
       if (res.ok) {
         // 구독 삭제후 데이터 갱신
         setTableData((prevData) => prevData.filter((item) => item.subscriberId !== selectedRow.subscriberId));
+        setSubscribedCount((prevCount) => prevCount - 1);
         fetchData();
         alert("구독자 정보가 완전 삭제되었습니다.");
       } else {
@@ -184,7 +185,19 @@ const SubscribersList = () => {
         <Table
           columns={[
             { key: "email", label: "이메일 주소" },
-            { key: "created_at", label: "구독일" },
+            { 
+              key: "created_at", 
+              label: "구독일",
+              render: (value: string) => {
+                if (!value) return "-";
+
+                const date = new Date(value);
+
+                return (
+                  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
+                );
+              }
+            },
             {
               key: "statusBcode",
               label: "구독 상태",
@@ -255,9 +268,13 @@ const SubscribersList = () => {
           setConfirmOpen(false);
         }}
       />
-      <Pagination pagination={paginationInfo} moveToPage={(passedPage) => {
-        setPage(passedPage - 1);
-      }} />
+      {tableData.length === 0 ? (
+       ""
+      ) : (
+        <Pagination pagination={paginationInfo} moveToPage={(passedPage) => {
+          setPage(passedPage - 1);
+        }} />
+      )}
     </div>
   );
 };
