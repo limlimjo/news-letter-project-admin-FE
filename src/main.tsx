@@ -26,7 +26,7 @@ async function init() {
   }
 
   createRoot(document.getElementById("root")!).render(
-    <StrictMode>
+    // <StrictMode>
       <BrowserRouter>
         <Routes>
           <Route element={<RootLayout />}>
@@ -42,7 +42,7 @@ async function init() {
           </Route>
         </Routes>
       </BrowserRouter>
-    </StrictMode>
+    // </StrictMode>
   );
 }
 

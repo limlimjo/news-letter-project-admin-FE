@@ -124,6 +124,7 @@ const SubscribersList = () => {
         setTableData((prevData) => prevData.filter((item) => item.subscriberId !== selectedRow.subscriberId));
         setSubscribedCount((prevCount) => prevCount - 1);
         fetchData();
+
         alert("구독자 정보가 완전 삭제되었습니다.");
       } else {
         alert("구독자 정보 삭제에 실패하였습니다.");

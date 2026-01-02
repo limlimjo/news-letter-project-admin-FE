@@ -87,15 +87,20 @@ const ContentsList = () => {
     if (!selectedRow) return;
     try {
       // 콘텐츠 삭제 API 호출
-      const res = await fetch(`/api/contents/${selectedRow.postId}`, { method: "DELETE" });
-      const result = await res.json();
-      console.log(result.message);
+      const res = await fetch(`/api/api/v1/admin/post/delete/${selectedRow.postId}`, { 
+        method: "DELETE" 
+      });
 
-      // 콘텐츠 삭제후 데이터 갱신
-      setTableData((prevData) => prevData.filter((item) => item.postId !== selectedRow.postId));
-      fetchData();
+      if (res.ok) {
+        // 콘텐츠 삭제후 데이터 갱신
+        setTableData((prevData) => prevData.filter((item) => item.postId !== selectedRow.postId));
+        fetchData();
+        alert("콘텐츠가 삭제되었습니다.");
+      } else {
+        alert("콘텐츠 삭제에 실패하였습니다.");
+        return;
+      }
 
-      alert("콘텐츠가 삭제되었습니다.");
     } catch (error) {
       console.error(error);
       alert("콘텐츠 삭제 중 오류가 발생했습니다.");
@@ -192,8 +197,10 @@ const ContentsList = () => {
               render: (_value, row) => {
                 // 수정 버튼 클릭할 때
                 const handleUpdate = () => {
-                  const path = URL.ADMIN_CONTENTS_MODIFY.replace(":id", String(row.id));
-                  navigate(path, { state: { status: row.status } });
+                  console.log("_value 출력: ", _value);
+                  console.log("row 출력: ", row);
+                  const path = URL.ADMIN_CONTENTS_MODIFY.replace(":id", String(row.postId));
+                  navigate(path, { state: { status: row.statusBcode } });
                 };
 
                 // 삭제 버튼 클릭할 때
@@ -229,7 +236,7 @@ const ContentsList = () => {
         isOpen={confirmOpen}
         title="웹 콘텐츠 삭제"
         message={
-          selectedRow && selectedRow.statusBcode == "POST"
+          selectedRow && selectedRow.statusBcode == "PUBLISHED"
             ? "이 글은 현재 웹페이지에 게시 중이며, 삭제하면 웹페이지에서 해당 글이 사라집니다. 삭제하시겠습니까?"
             : "이 글을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
         }

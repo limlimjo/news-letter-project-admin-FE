@@ -9,6 +9,15 @@ import { useLocation, useNavigate, useParams } from "react-router";
 
 type Props = { mode?: string };
 
+type ContentDeail = {
+  title: string;
+  contentHtml: string;
+  statusBcode: "DRAFT" | "PUBLISHED";
+  createdAt: string;
+  publishedAt: string;
+  email: string;
+};
+
 const ContentEdit = ({ mode = CODE.MODE_CREATE }: Props) => {
   const navigate = useNavigate();
   const params = useParams();
@@ -17,10 +26,16 @@ const ContentEdit = ({ mode = CODE.MODE_CREATE }: Props) => {
   const passedStatus = location.state?.status;
 
   const [activeTab, setActiveTab] = useState("editor");
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  const [contentDetail, setContentDetail] = useState<ContentDeail>({
+    title: "",
+    contentHtml: "",
+    statusBcode: "DRAFT",
+    createdAt: "",
+    publishedAt: "",
+    email: "",
+  });
   const [loading, setLoading] = useState(false);
-  const [status, _setStatus] = useState<"draft" | "published" | "">(passedStatus ?? "");
+  const [status, _setStatus] = useState<"DRAFT" | "PUBLISHED" | "">(passedStatus ?? "");
   const modifyMode = mode === CODE.MODE_MODIFY;
 
   // 수정 모드일 경우 기존 데이터 불러오기
@@ -29,11 +44,12 @@ const ContentEdit = ({ mode = CODE.MODE_CREATE }: Props) => {
 
     const fetchContent = async () => {
       try {
-        const res = await fetch(`/api/contents/${contentId}`);
+        const res = await fetch(`/api/api/v1/admin/post/detail/${contentId}`, {
+          method: "GET",
+        });
         const result = await res.json();
         if (!res.ok) throw new Error(result.message || "데이터 로드 실패");
-        setTitle(result.title);
-        setContent(result.content);
+        setContentDetail(result.postInfoDto);
       } catch (err) {
         console.error("데이터 로드 실패:", err);
         alert("콘텐츠 데이터를 불러오는 중 오류가 발생했습니다.");
@@ -50,15 +66,15 @@ const ContentEdit = ({ mode = CODE.MODE_CREATE }: Props) => {
   };
 
   // common 저장 함수
-  const saveContent = async (saveStatus: "draft" | "published") => {
+  const saveContent = async (saveStatus: "DRAFT" | "PUBLISHED") => {
     // 제목 입력 체크
-    if (!title.trim()) {
+    if (!contentDetail.title.trim()) {
       alert("제목을 입력해주세요.");
       return;
     }
 
     // 내용 입력 체크
-    const plainText = content
+    const plainText = contentDetail.contentHtml
       .replace(/<[^>]+>/g, "")
       .replace(/&nbsp;/g, " ")
       .trim();
@@ -67,46 +83,99 @@ const ContentEdit = ({ mode = CODE.MODE_CREATE }: Props) => {
       return;
     }
 
+    if (loading) return;
+
     try {
-      console.log("저장 상태:", saveStatus);
       setLoading(true);
 
       // 등록/수정 API 호출 분기 처리
       const apiRequest = () => {
+        // 수정일 때
         if (modifyMode && contentId) {
-          const url = `/api/contents/${contentId}`;
-          return { url, method: "PUT" };
+          let url = '';
+          // 발행
+          if (saveStatus === "PUBLISHED") {
+            url = '/api/api/v1/admin/post/update/publish';
+          }
+          // 임시저장
+          else if (saveStatus === "DRAFT") {
+            url = '/api/api/v1/admin/post/update/redraft';
+          }
+          type BodyModifyJson = {
+            postId: number;
+            title: string;
+            contentHtml: string;
+            statusBcode: "DRAFT" | "PUBLISHED";
+          };
+
+          const bodyJson: BodyModifyJson = {
+            postId: Number(contentId),
+            title: contentDetail.title,
+            contentHtml: contentDetail.contentHtml,
+            statusBcode: saveStatus,
+          };
+
+          return { url, method: "PATCH", bodyJson };
+        // 등록일 때
         } else {
-          const url = "/api/contents";
-          return { url, method: "POST" };
+          let url = '';
+          // 발행
+          if (saveStatus === "PUBLISHED") {
+            url = '/api/api/v1/admin/post/publish';
+          }
+          // 임시저장
+          else if (saveStatus === "DRAFT") {
+            url = '/api/api/v1/admin/post/draft';
+          }
+
+          type BodySaveJson = {
+            adminId: number;
+            title: string;
+            contentHtml: string;
+            statusBcode: "DRAFT" | "PUBLISHED";
+          };
+
+          const bodyJson: BodySaveJson = {
+            adminId: 1,
+            title: contentDetail.title,
+            contentHtml: contentDetail.contentHtml,
+            statusBcode: saveStatus,
+          };
+
+          return { url, method: "POST", bodyJson };
         }
       };
 
-      const { url, method } = apiRequest();
+      const { url, method, bodyJson } = apiRequest();
 
       const res = await fetch(url, {
         method,
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ title, content, status: saveStatus }),
+        body: JSON.stringify(bodyJson),
       });
-      const result = await res.json();
-      if (!res.ok) throw new Error(result.message || "저장 실패");
-      console.log("저장 결과:", result);
-      navigate(URL.ADMIN_CONTENTS);
+
+      if (res.ok) {
+        const result = await res.text();
+        alert(result);
+        navigate(URL.ADMIN_CONTENTS);
+      } else {
+        alert("저장에 실패하였습니다.");
+        return false;
+      }
     } catch (err) {
       console.error("저장 실패:", err);
-      alert("저장 중 오류가 발생했습 니다.");
+      alert("저장 중 오류가 발생했습니다.");
     } finally {
       setLoading(false);
     }
   };
 
   // 임시 저장 버튼 핸들러
-  const handleDraftSave = () => saveContent("draft");
+  const handleDraftSave = () => saveContent("DRAFT");
   // 웹에 발행/변경사항 저장 버튼 핸들러
-  const handlePublish = () => saveContent("published");
+  const handlePublish = () => saveContent("PUBLISHED");
 
   return (
     <div className="bg-gray-100 mt-10 mb-4 ml-5 mr-5 rounded">
@@ -124,7 +193,7 @@ const ContentEdit = ({ mode = CODE.MODE_CREATE }: Props) => {
       </div>
       <div className="grid grid-cols-[3fr_1fr] gap-6 p-5">
         <div>
-          <CommonInput type="text" className="mb-4" value={title} onChange={setTitle} placeholder="제목을 입력하세요" />
+          <CommonInput type="text" className="mb-4" value={contentDetail.title} onChange={value => setContentDetail(prev => ({...prev, title: value}))} placeholder="제목을 입력하세요" />
           <div className="flex w-full bg-gray-200 rounded-full p-1">
             <button
               onClick={() => setActiveTab("editor")}
@@ -143,17 +212,17 @@ const ContentEdit = ({ mode = CODE.MODE_CREATE }: Props) => {
           </div>
           <div className="max-w-3xl mx-auto">
             {activeTab === "editor" ? (
-              <TinyMceEditor content={content} setContent={setContent} />
+              <TinyMceEditor content={contentDetail.contentHtml} setContent={html => setContentDetail(prev => ({...prev, contentHtml: html}))} />
             ) : (
               <div className="mt-4 bg-white rounded p-4">
-                <div className="editor-preview max-w-none h-[610px]" dangerouslySetInnerHTML={{ __html: content }} />
+                <div className="editor-preview max-w-none h-full" dangerouslySetInnerHTML={{ __html: contentDetail.contentHtml }} />
               </div>
             )}
           </div>
         </div>
         <div className="flex flex-col gap-2">
           {/* status가 임시저장(draft)일 때는 임시 저장 버튼과 웹에 발행 버튼 표시 */}
-          {(status === "draft" || status === "") && (
+          {(status === "DRAFT" || status === "") && (
             <>
               <Button
                 onClick={handleDraftSave}
@@ -172,7 +241,7 @@ const ContentEdit = ({ mode = CODE.MODE_CREATE }: Props) => {
             </>
           )}
           {/* status가 발행완료(published)일 때는 변경사항 저장 버튼 표시 */}
-          {status === "published" && (
+          {status === "PUBLISHED" && (
             <Button
               onClick={handlePublish}
               disabled={loading}
