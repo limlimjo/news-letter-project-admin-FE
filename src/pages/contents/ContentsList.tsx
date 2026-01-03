@@ -98,7 +98,7 @@ const ContentsList = () => {
         alert("콘텐츠가 삭제되었습니다.");
       } else {
         alert("콘텐츠 삭제에 실패하였습니다.");
-        return;
+        return false;
       }
 
     } catch (error) {

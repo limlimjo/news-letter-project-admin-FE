@@ -10,6 +10,15 @@ import { useLocation, useNavigate, useParams } from "react-router";
 
 type Props = { mode?: string };
 
+type NewsletterDetail = {
+  newsTitle: string;
+  contentHtml: string;
+  statusBcode: "DRAFT" | "PUBLISHED";
+  createdAt: string;
+  publishedAt: string;
+  email: string;
+}
+
 const NewsletterEdit = ({ mode = CODE.MODE_CREATE }: Props) => {
   const navigate = useNavigate();
   const params = useParams();
@@ -24,7 +33,7 @@ const NewsletterEdit = ({ mode = CODE.MODE_CREATE }: Props) => {
   const [email, setEmail] = useState("");
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState<"draft" | "published" | "unpublished" | "">(passedStatus ?? "");
+  const [status, setStatus] = useState<"DRAFT" | "PUBLISHED" | "UNPUBLISHED" | "">(passedStatus ?? "");
 
   const modifyMode = mode === CODE.MODE_MODIFY;
 
@@ -57,7 +66,7 @@ const NewsletterEdit = ({ mode = CODE.MODE_CREATE }: Props) => {
   };
 
   // common 저장 함수
-  const saveContent = async (saveStatus: "draft" | "published" | "unpublished") => {
+  const saveContent = async (saveStatus: "DRAFT" | "PUBLISHED" | "UNPUBLISHED") => {
     // 제목 입력 체크
     if (!title.trim()) {
       alert("제목을 입력해주세요.");
@@ -79,7 +88,7 @@ const NewsletterEdit = ({ mode = CODE.MODE_CREATE }: Props) => {
       setLoading(true);
 
       // 예약 발송 선택 시 날짜/시간 입력 체크
-      if (saveStatus === "unpublished") {
+      if (saveStatus === "UNPUBLISHED") {
         if (!reservationDate || !reservationTime) {
           alert("예약 발송을 선택하셨습니다. 예약 날짜와 시간을 입력해주세요.");
           setLoading(false);
@@ -103,7 +112,7 @@ const NewsletterEdit = ({ mode = CODE.MODE_CREATE }: Props) => {
       type BodyPayload = {
         title: string;
         content: string;
-        status: "draft" | "published" | "unpublished";
+        status: "DRAFT" | "PUBLISHED" | "UNPUBLISHED";
         reservationDate?: string;
         reservationTime?: string;
       };
@@ -115,7 +124,7 @@ const NewsletterEdit = ({ mode = CODE.MODE_CREATE }: Props) => {
       };
 
       // 예약 발송일 경우 날짜/시간 포함
-      if (saveStatus === "unpublished") {
+      if (saveStatus === "UNPUBLISHED") {
         bodyPayload.reservationDate = reservationDate;
         bodyPayload.reservationTime = reservationTime;
       }
@@ -137,11 +146,11 @@ const NewsletterEdit = ({ mode = CODE.MODE_CREATE }: Props) => {
   };
 
   // 임시 저장 버튼 핸들러
-  const handleDraftSave = () => saveContent("draft");
+  const handleDraftSave = () => saveContent("DRAFT");
   // 즉시 발송 버튼 핸들러
-  const handlePublish = () => saveContent("published");
+  const handlePublish = () => saveContent("PUBLISHED");
   // 예약 설정 버튼 핸들러
-  const handleUnpublish = () => saveContent("unpublished");
+  const handleUnpublish = () => saveContent("UNPUBLISHED");
 
   return (
     <div className="bg-gray-100 mt-10 mb-4 ml-5 mr-5 rounded">
@@ -198,9 +207,9 @@ const NewsletterEdit = ({ mode = CODE.MODE_CREATE }: Props) => {
                       className="mr-2"
                       type="radio"
                       name="status"
-                      value="published"
-                      checked={status === "published" || status === ""}
-                      onChange={() => setStatus("published")}
+                      value="PUBLISHED"
+                      checked={status === "PUBLISHED" || status === ""}
+                      onChange={() => setStatus("PUBLISHED")}
                     />
                     즉시 발송
                   </label>
@@ -209,16 +218,16 @@ const NewsletterEdit = ({ mode = CODE.MODE_CREATE }: Props) => {
                       className="mr-2"
                       type="radio"
                       name="status"
-                      value="unpublished"
-                      checked={status === "unpublished"}
-                      onChange={() => setStatus("unpublished")}
+                      value="UNPUBLISHED"
+                      checked={status === "UNPUBLISHED"}
+                      onChange={() => setStatus("UNPUBLISHED")}
                     />
                     예약 발송
                   </label>
                 </div>
               </div>
               {/* 예약 옵션 - 예약 발송 선택 시에만 보이게 함 */}
-              {status === "unpublished" && (
+              {status === "UNPUBLISHED" && (
                 <div className="mt-4">
                   <div className="mb-2">
                     <p className="mb-2">예약 날짜</p>
@@ -252,7 +261,7 @@ const NewsletterEdit = ({ mode = CODE.MODE_CREATE }: Props) => {
             >
               {loading ? "저장 중..." : "임시 저장"}
             </Button>
-            {status === "published" ? (
+            {status === "PUBLISHED" ? (
               <Button
                 onClick={handlePublish}
                 disabled={loading}

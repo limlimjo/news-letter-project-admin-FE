@@ -9,10 +9,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 
 type Newsletter = {
-  id: number;
-  title: string;
-  createdAt: string;
-  status: "draft" | "published";
+  newsletterId: number;
+  newsTitle: string;
+  publisedAt: string;
+  status: "PUBLISHED" | "DRAFT";
 };
 
 type PaginationInfo = {
@@ -25,8 +25,10 @@ type PaginationInfo = {
 const NewslettersList = () => {
   const navigate = useNavigate();
 
+  const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState("ALL");
+  const [page, setPage] = useState(0);
   const [tableData, setTableData] = useState<Newsletter[]>([]);
   const [paginationInfo, setPaginationInfo] = useState<PaginationInfo>({
     currentPageNo: 1,
@@ -40,20 +42,44 @@ const NewslettersList = () => {
   const [selectedRow, setSelectedRow] = useState<Newsletter | null>(null);
 
   const options = [
-    { value: "all", label: "전체 상태" },
-    { value: "published", label: "발송 완료" },
-    { value: "unpublished", label: "예약 발송" },
-    { value: "draft", label: "임시 저장" },
+    { value: "ALL", label: "전체 상태" },
+    { value: "PUBLISHED", label: "발송 완료" },
+    { value: "UNPUBLISHED", label: "예약 발송" },
+    { value: "DRAFT", label: "임시 저장" },
   ];
 
   // api 호출
   const fetchData = async () => {
     try {
-      const response = await fetch("/api/newsletters");
-      const result = await response.json();
-      setTableData(result);
+      const params = new URLSearchParams({
+        newsTitle: search || "",
+        statusBcode: filter || "",
+        page: String(page),
+        size: "5",
+      });
+
+      const res = await fetch(`/api/api/v1/admin/news/list?${params.toString()}`,  {
+        method: "GET",
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+
+        setTableData(data.items);
+        setPaginationInfo({
+          currentPageNo: data.currentPageNo,
+          pageSize: data.pageSize,
+          totalRecordCount: data.totalRecordCount,
+          recordCountPerPage: data.recordCountPerPage,
+        });
+      } else {
+        alert("뉴스레터 정보 조회에 실패하였습니다.");
+        return false;
+      }
+
     } catch (err) {
       console.error("요청 실패:", err);
+      alert("뉴스레터 정보 조회 중 오류가 발생했습니다.");
     }
   };
 
@@ -62,15 +88,19 @@ const NewslettersList = () => {
     if (!selectedRow) return;
     try {
       // 뉴스레터 삭제 API 호출
-      const res = await fetch(`/api/newsletters/${selectedRow.id}`, { method: "DELETE" });
-      const result = await res.json();
-      console.log(result.message);
+      const res = await fetch(`/api/api/v1/admin/news/delete/${selectedRow.newsletterId}`, { 
+        method: "DELETE" 
+      });
 
-      // 뉴스레터 삭제후 데이터 갱신
-      setTableData((prevData) => prevData.filter((item) => item.id !== selectedRow.id));
-      fetchData();
-
-      alert("뉴스레터가 삭제되었습니다.");
+      if (res.ok) {
+        // 뉴스레터 삭제후 데이터 갱신
+        setTableData((prevData) => prevData.filter((item) => item.newsletterId !== selectedRow.newsletterId));
+        fetchData();
+        alert("뉴스레터가 삭제되었습니다.");
+      } else {
+        alert("뉴스레터 삭제에 실패하였습니다.");
+        return false;
+      }
     } catch (error) {
       console.error(error);
       alert("뉴스레터 삭제 중 오류가 발생했습니다.");
@@ -79,14 +109,7 @@ const NewslettersList = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
-
-  // 검색 + 필터 적용
-  const filteredData = tableData.filter((row) => {
-    const matchesFilter = filter === "all" || row.status === filter;
-    const matchesSearch = row.title.toLowerCase().includes(search.toLowerCase());
-    return matchesFilter && matchesSearch;
-  });
+  }, [page, search, filter]);
 
   // 등록 버튼 클릭할 때
   const handleRegisterBtnClick = () => {
@@ -108,27 +131,42 @@ const NewslettersList = () => {
         </Button>
       </div>
       <div className="p-5 flex justify-between gap-5">
-        <SearchInput value={search} onChange={setSearch} placeholder="뉴스레터 제목 검색" />
-        <ComboBox value={filter} onChange={setFilter} options={options} />
+        <SearchInput 
+          value={searchInput} 
+          onChange={setSearchInput}
+          onEnter={() => {
+            setSearch(searchInput);
+            setPage(0);
+          }} 
+          placeholder="뉴스레터 제목 검색" 
+        />
+        <ComboBox 
+          value={filter} 
+          onChange={(value) => {
+            setFilter(value);
+            setPage(0);
+          }}
+          options={options} 
+        />
       </div>
       <div className="p-5">
         <Table
           columns={[
-            { key: "title", label: "뉴스레터 제목" },
+            { key: "newsTItle", label: "뉴스레터 제목" },
             {
-              key: "status",
+              key: "statusBcode",
               label: "발송 상태",
               render: (value) => {
                 const statusMap: Record<string, { label: string; className: string }> = {
-                  published: {
+                  PUBLISHED: {
                     label: "발송 완료",
                     className: "border border-gray-300 text-black",
                   },
-                  unpublished: {
+                  UNPUBLISHED: {
                     label: "예약 발송",
                     className: "bg-black text-white",
                   },
-                  draft: {
+                  DRAFT: {
                     label: "임시 저장",
                     className: "bg-gray-200 text-black",
                   },
@@ -144,7 +182,7 @@ const NewslettersList = () => {
                 );
               },
             },
-            { key: "createdAt", label: "발송 일시" },
+            { key: "publishedAt", label: "발송 일시" },
             {
               key: "manage",
               label: "작업",
@@ -153,8 +191,8 @@ const NewslettersList = () => {
 
                 // 수정 버튼 클릭할 때
                 const handleUpdate = () => {
-                  const path = URL.ADMIN_NEWSLETTERS_MODIFY.replace(":id", String(row.id));
-                  navigate(path, { state: { status: row.status } });
+                  const path = URL.ADMIN_NEWSLETTERS_MODIFY.replace(":id", String(row.newsletterId));
+                  navigate(path, { state: { status: row.statusBcode } });
                 };
 
                 // 삭제 버튼 클릭할 때
@@ -196,10 +234,9 @@ const NewslettersList = () => {
               },
             },
           ]}
-          data={filteredData}
+          data={tableData}
         />
       </div>
-      <Pagination pagination={paginationInfo} moveToPage={(passedPage) => {}} />
       {/* 모달 컴포넌트 */}
       <CommonModal
         isOpen={confirmOpen}
@@ -213,6 +250,13 @@ const NewslettersList = () => {
           setConfirmOpen(false);
         }}
       />
+      {tableData.length === 0 ? (
+       ""
+      ) : (
+        <Pagination pagination={paginationInfo} moveToPage={(passedPage) => {
+          setPage(passedPage - 1);
+        }} />
+      )}
     </div>
   );
 };
